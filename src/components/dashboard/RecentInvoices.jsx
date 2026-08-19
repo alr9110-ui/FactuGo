@@ -1,0 +1,11 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { formatCurrency, formatDate } from '@/lib/fiscalUtils';
+import { cn } from '@/lib/utils';
+const statusColors = { borrador:'bg-muted text-muted-foreground', validada:'bg-emerald-50 text-emerald-700 border-emerald-200', contabilizada:'bg-blue-50 text-blue-700 border-blue-200', anulada:'bg-red-50 text-red-700 border-red-200' };
+export default function RecentInvoices({ invoices }) {
+  if (!invoices?.length) return <div className="bg-card rounded-xl border border-border p-8 text-center"><p className="text-muted-foreground text-sm">No hay facturas recientes</p><Link to="/nueva-factura" className="text-primary text-sm font-medium mt-2 inline-block hover:underline">Crear primera factura →</Link></div>;
+  return <div className="bg-card rounded-xl border border-border overflow-hidden"><div className="px-5 py-4 border-b border-border flex items-center justify-between"><h3 className="font-heading font-semibold text-sm">Últimas facturas</h3><Link to="/facturas" className="text-xs text-primary font-medium hover:underline">Ver todas →</Link></div><div className="divide-y divide-border">{invoices.slice(0,8).map(inv=><div key={inv.id} className="px-5 py-3 flex items-center gap-3 hover:bg-muted/50 transition-colors"><div className={cn('w-8 h-8 rounded-full flex items-center justify-center shrink-0',inv.type==='emitida'?'bg-emerald-50':'bg-amber-50')}>{inv.type==='emitida'?<ArrowUpRight className="w-4 h-4 text-emerald-600"/>:<ArrowDownLeft className="w-4 h-4 text-amber-600"/>}</div><div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{inv.client_name}</p><p className="text-xs text-muted-foreground">{inv.invoice_number} · {formatDate(inv.date)}</p></div><div className="text-right shrink-0"><p className={cn('text-sm font-semibold',inv.type==='emitida'?'text-emerald-600':'text-foreground')}>{inv.type==='emitida'?'+':'-'}{formatCurrency(inv.total)}</p><Badge variant="outline" className={cn('text-[10px] px-1.5 py-0',statusColors[inv.status])}>{inv.status}</Badge></div></div>)}</div></div>;
+}

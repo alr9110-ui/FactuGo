@@ -1,0 +1,9 @@
+{
+  "name": "FactuGo Demo",
+  "short_name": "FactuGo",
+  "description": "Demo de facturación y control fiscal.",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0f766e",
+  "background_color": "#ffffff"
+}
