@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Mail, Lock, Loader2 } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
+import { navigateToAppPath } from '@/lib/appNavigation';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ export default function Register() {
     try {
       await appClient.auth.register({ email, password });
       await appClient.auth.loginViaEmailPassword(email, password);
-      window.location.assign('/');
+      navigateToAppPath('/');
     } catch (err) {
       setError(err.message || 'No se pudo crear la cuenta.');
     } finally {
