@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { appClient } from '@/api/appClient';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Mail, Lock, Loader2 } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
-import { navigateToAppPath } from '@/lib/appNavigation';
 
 export default function Register() {
+  const navigate = useNavigate();
+  const { checkUserAuth } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +25,8 @@ export default function Register() {
     try {
       await appClient.auth.register({ email, password });
       await appClient.auth.loginViaEmailPassword(email, password);
-      navigateToAppPath('/');
+      await checkUserAuth();
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message || 'No se pudo crear la cuenta.');
     } finally {

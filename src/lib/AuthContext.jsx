@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { appClient } from '@/api/appClient';
-import { navigateToAppPath } from '@/lib/appNavigation';
 
 const AuthContext = createContext();
 
@@ -35,13 +34,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setAuthenticated(false);
     setAuthError({ type: 'auth_required' });
-    navigateToAppPath('/login');
   };
-  const navigateToLogin = () => navigateToAppPath('/login', { replace: true });
 
   return <AuthContext.Provider value={{
     user, isAuthenticated, isLoadingAuth, isLoadingPublicSettings: false, authError,
-    appPublicSettings: null, authChecked, logout, navigateToLogin, checkUserAuth,
+    appPublicSettings: null, authChecked, logout, checkUserAuth,
     checkAppState: checkUserAuth,
   }}>{children}</AuthContext.Provider>;
 };

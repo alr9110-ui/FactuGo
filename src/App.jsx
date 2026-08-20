@@ -28,7 +28,7 @@ import Gastos from '@/pages/Gastos';
 import Plantillas from '@/pages/Plantillas';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const location = useLocation();
   const isPublicRoute = ['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
 
@@ -37,7 +37,7 @@ const AuthenticatedApp = () => {
   }
   if (!isPublicRoute && authError) {
     if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
-    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
+    if (authError.type === 'auth_required') return <Navigate to="/login" replace />;
   }
   return <Routes>
     <Route path="/login" element={<Login />} />

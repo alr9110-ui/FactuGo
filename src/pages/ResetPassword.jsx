@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { appClient } from "@/api/appClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, Loader2, AlertTriangle } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
-import { navigateToAppPath } from "@/lib/appNavigation";
 
 export default function ResetPassword() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resetToken = searchParams.get("token");
   const [newPassword, setNewPassword] = useState("");
@@ -23,7 +23,7 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       await appClient.auth.resetPassword({ resetToken, newPassword });
-      navigateToAppPath('/login');
+      navigate('/login', { replace: true });
     } catch (err) {
       setError(err.message || "Failed to reset password");
     } finally {

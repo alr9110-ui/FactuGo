@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { appClient } from '@/api/appClient';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LogIn, Mail, Lock, Loader2, Sparkles } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
-import { navigateToAppPath } from '@/lib/appNavigation';
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { checkUserAuth } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,7 +22,8 @@ export default function Login() {
     setLoading(true);
     try {
       await appClient.auth.loginViaEmailPassword(email, password);
-      navigateToAppPath('/');
+      await checkUserAuth();
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message || 'Correo o contraseña incorrectos.');
     } finally {
@@ -29,7 +32,7 @@ export default function Login() {
   };
   const startDemo = async () => {
     setError(''); setLoading(true);
-    try { await appClient.auth.startDemo(); navigateToAppPath('/'); }
+    try { await appClient.auth.startDemo(); await checkUserAuth(); navigate('/', { replace: true }); }
     catch (err) { setError(err.message || 'No se pudo iniciar la demostración.'); }
     finally { setLoading(false); }
   };
