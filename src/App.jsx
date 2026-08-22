@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { lazy, Suspense } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import { BrowserRouter, HashRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom';
@@ -8,24 +9,24 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
 
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-import AppLayout from '@/components/layout/AppLayout';
-import Dashboard from '@/pages/Dashboard';
-import Invoices from '@/pages/Invoices';
-import Digitize from '@/pages/Digitize';
-import NewInvoice from '@/pages/NewInvoice';
-import Quarters from '@/pages/Quarters';
-import Reports from '@/pages/Reports';
-import InvoiceBooks from '@/pages/InvoiceBooks';
-import Notifications from '@/pages/Notifications';
-import Clients from '@/pages/Clients';
-import Settings from '@/pages/Settings';
-import Cobros from '@/pages/Cobros';
-import Gastos from '@/pages/Gastos';
-import Plantillas from '@/pages/Plantillas';
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+const AppLayout = lazy(() => import('@/components/layout/AppLayout'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Invoices = lazy(() => import('@/pages/Invoices'));
+const Digitize = lazy(() => import('@/pages/Digitize'));
+const NewInvoice = lazy(() => import('@/pages/NewInvoice'));
+const Quarters = lazy(() => import('@/pages/Quarters'));
+const Reports = lazy(() => import('@/pages/Reports'));
+const InvoiceBooks = lazy(() => import('@/pages/InvoiceBooks'));
+const Notifications = lazy(() => import('@/pages/Notifications'));
+const Clients = lazy(() => import('@/pages/Clients'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const Cobros = lazy(() => import('@/pages/Cobros'));
+const Gastos = lazy(() => import('@/pages/Gastos'));
+const Plantillas = lazy(() => import('@/pages/Plantillas'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -67,7 +68,7 @@ const AuthenticatedApp = () => {
 
 function App() {
   const Router = import.meta.env.BASE_URL === '/' ? BrowserRouter : HashRouter;
-  return <AuthProvider><QueryClientProvider client={queryClientInstance}><Router><ScrollToTop /><AuthenticatedApp /></Router><Toaster /></QueryClientProvider></AuthProvider>;
+  return <AuthProvider><QueryClientProvider client={queryClientInstance}><Router><ScrollToTop /><Suspense fallback={<div className="fixed inset-0 flex items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" /></div>}><AuthenticatedApp /></Suspense></Router><Toaster /></QueryClientProvider></AuthProvider>;
 }
 
 export default App;
