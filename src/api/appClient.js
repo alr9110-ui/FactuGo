@@ -28,6 +28,7 @@ const compare = (field, descending) => (a, b) => {
 
 const createEntity = name => ({
   async list(order = '-created_date', limit = 100) {
+    if (getUser()?.is_demo) seedDemoData();
     const descending = order.startsWith('-');
     return read(name).sort(compare(order.replace(/^-/, ''), descending)).slice(0, limit);
   },
