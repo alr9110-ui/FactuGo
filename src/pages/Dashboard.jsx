@@ -14,6 +14,7 @@ import VATBalancePanel from '@/components/dashboard/VATBalancePanel';
 import QuarterlyChart from '@/components/dashboard/QuarterlyChart';
 import MonthlyAnalyticsPanel from '@/components/dashboard/MonthlyAnalyticsPanel';
 import CashFlowPanel from '@/components/dashboard/CashFlowPanel';
+import CashFlowForecast from '@/components/dashboard/CashFlowForecast';
 import { formatCurrency, getQuarterFromDate, calculateQuarterVAT } from '@/lib/fiscalUtils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -118,6 +119,7 @@ export default function Dashboard() {
       <VATBalancePanel vatData={vatData} quarter={currentQuarter} year={currentYear} />
       <QuarterlyChart invoices={invoices} year={currentYear} />
       <MonthlyAnalyticsPanel invoices={invoices} year={currentYear} />
+      <CashFlowForecast invoices={invoices} />
       <CashFlowPanel invoices={invoices} year={currentYear} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
