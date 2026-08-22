@@ -1,11 +1,22 @@
 const STORAGE_PREFIX = 'factugo:';
+const DEMO_STORAGE_PREFIX = 'factugo:demo:';
+const usersKey = 'users';
+const sessionKey = `${STORAGE_PREFIX}session`;
+const getUser = () => JSON.parse(localStorage.getItem(sessionKey) || 'null');
+const setUser = user => localStorage.setItem(sessionKey, JSON.stringify(user));
+const activeStoragePrefix = () => getUser()?.is_demo ? DEMO_STORAGE_PREFIX : STORAGE_PREFIX;
 
 const read = key => {
-  try { return JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}${key}`) || '[]'); }
+  try { return JSON.parse(localStorage.getItem(`${activeStoragePrefix()}${key}`) || '[]'); }
   catch { return []; }
 };
 
-const write = (key, value) => localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(value));
+const write = (key, value) => localStorage.setItem(`${activeStoragePrefix()}${key}`, JSON.stringify(value));
+const readUsers = () => {
+  try { return JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}${usersKey}`) || '[]'); }
+  catch { return []; }
+};
+const writeUsers = users => localStorage.setItem(`${STORAGE_PREFIX}${usersKey}`, JSON.stringify(users));
 const now = () => new Date().toISOString();
 const id = () => crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
@@ -43,11 +54,6 @@ const createEntity = name => ({
   async bulkUpdate(changes) { return Promise.all(changes.map(({ id: recordId, ...data }) => this.update(recordId, data))); },
 });
 
-const usersKey = 'users';
-const sessionKey = `${STORAGE_PREFIX}session`;
-const getUser = () => JSON.parse(localStorage.getItem(sessionKey) || 'null');
-const setUser = user => localStorage.setItem(sessionKey, JSON.stringify(user));
-
 const quarterFromDate = date => { const month = Number(String(date).slice(5, 7)); return `Q${Math.ceil(month / 3)}`; };
 const currentYear = new Date().getFullYear();
 const demoDate = (month, day) => `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -74,15 +80,15 @@ const seedDemoData = () => {
 const auth = {
   async me() { const user = getUser(); if (!user) throw Object.assign(new Error('Autenticación requerida'), { status: 401 }); return user; },
   async register({ email, password }) {
-    const users = read(usersKey);
+    const users = readUsers();
     if (users.some(user => user.email.toLowerCase() === email.toLowerCase())) throw new Error('Ya existe una cuenta con ese correo');
     const user = { id: id(), email, password, role: 'user', created_date: now() };
-    write(usersKey, [...users, user]);
+    writeUsers([...users, user]);
     return { email };
   },
   async verifyOtp({ email, otpCode }) {
     if (String(otpCode).length !== 6) throw new Error('Introduce un código de seis dígitos');
-    const user = read(usersKey).find(candidate => candidate.email.toLowerCase() === email.toLowerCase());
+    const user = readUsers().find(candidate => candidate.email.toLowerCase() === email.toLowerCase());
     if (!user) throw new Error('Cuenta no encontrada');
     const safeUser = { id: user.id, email: user.email, role: user.role };
     setUser(safeUser);
@@ -91,13 +97,17 @@ const auth = {
   setToken() {},
   async resendOtp() { return true; },
   async loginViaEmailPassword(email, password) {
-    const user = read(usersKey).find(candidate => candidate.email.toLowerCase() === email.toLowerCase() && candidate.password === password);
+    const user = readUsers().find(candidate => candidate.email.toLowerCase() === email.toLowerCase() && candidate.password === password);
     if (!user) throw new Error('Correo o contraseña incorrectos');
     setUser({ id: user.id, email: user.email, role: user.role });
   },
   async startDemo() {
-    seedDemoData();
     setUser({ id: 'factugo-demo', email: 'demo@factugo.example', role: 'demo', is_demo: true });
+    seedDemoData();
+  },
+  async resetDemo() {
+    Object.keys(localStorage).filter(key => key.startsWith(DEMO_STORAGE_PREFIX)).forEach(key => localStorage.removeItem(key));
+    seedDemoData();
   },
   loginWithProvider() { throw new Error('El acceso con Google se configurará al elegir el proveedor de autenticación.'); },
   logout() { localStorage.removeItem(sessionKey); },
